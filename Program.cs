@@ -11,328 +11,502 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-
-
-
+using System.Configuration;
+using System.Web.UI.HtmlControls;
+using System.Text.RegularExpressions;
+using System.Net;
+using RestSharp;
+using ServiceStack;
+using UploadFile = ConsoleApp2.Models.UploadFile;
+using System.Collections;
+using System.Web.Services;
+using System.Web.UI.WebControls;
 
 namespace ConsoleApp2
 {
-    internal class Program
+    public class Program
     {
-        static async Task Main(string[] args)
+        static storedProcedure sql = new storedProcedure("miConexion");
+        public static FacLabControler facLabControler = new FacLabControler();
+        public static string jsonFactura = "", idSucursal = "", idTipoFactura = "", IdApiEmpresa = "";
+        public string leg;
+        public static List<string> result = new List<string>();
+        static string Fecha;
+        static string Subtotal;
+        static string Totalimptrasl;
+        static string Totalimpreten;
+        static string Descuentos;
+        static string Total;
+        static string FormaPago;
+        static string Condipago;
+        static string MetodoPago;
+        static string Moneda;
+        static string RFC;
+        static string CodSAT;
+        static string IdProducto;
+        static string Producto;
+        static string Origen;
+        static string Destino;
+
+        public static List<string> results = new List<string>();
+        static HtmlTable table = new HtmlTable();
+
+        static char[] caracter = { '|' };
+        static string[] words;
+        public static void Main(string[] args)
         {
-            //static void Main(string[] args)
+            
+            
             Program muobject = new Program();
-
-            //Ejemplo listo de HHTP POST
-            string uid = "7A1A518F-1C2D-4110-8BD4-4440B9266BD7";
-            string url = "https://canal1.xsa.com.mx:9050/bf2e1036-ba47-49a0-8cd9-e04b36d5afd4/cfdis/cancelar?";
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            string json = "{\"motivo\":\"02\",\"uuid\":[\"" + uid + "\"]}";
-            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            var httpResponse = await client.PostAsync(url, content);
-            if (httpResponse.IsSuccessStatusCode)
+            DataTable td = facLabControler.GetLeg();
+            foreach (DataRow item in td.Rows)
             {
-                var result = await httpResponse.Content.ReadAsStringAsync();
-                List<PostResponse> postResult2 = JsonConvert.DeserializeObject<List<PostResponse>>(result);
-
-                foreach (var item in postResult2)
-                {
-                    Console.WriteLine("uuid: " + item.uuid + " - " + "Status: " + item.status + " - " + "Descripcion: " + item.descripcion);
-                }
+                string leg = item["Leg"].ToString();
+                valida(leg);
             }
 
-            // FIN DE EJEMPLO HTTP POST
-
-
-
-            //var data = new StringContent(JsonConvert.SerializeObject(new
-            //{
-            //    abc = "jsjs",
-            //    xyz = "hhhh"
-            //}));
-            //data.Headers.ContentType = new MediaTypeHeaderValue("application/json"); // <-
-            ////var response = client.PostAsync(url, data).Result;
-
-            //Console.WriteLine(data);
-            // Ejemplo de HTTP GET
-            //string url = "https://jsonplaceholder.typicode.com/posts";
-            //string url2 = "https://canal1.xsa.com.mx:9050/bf2e1036-ba47-49a0-8cd9-e04b36d5afd4/tiposCfds";
-            //string url3 = "https://canal1.xsa.com.mx:9050/bf2e1036-ba47-49a0-8cd9-e04b36d5afd4/sucursales";
-            //HttpClient client = new HttpClient();
-
-            //var httpResponse = await client.GetAsync(url3);
-            //if (httpResponse.IsSuccessStatusCode)
-            //{
-            //    var content = await httpResponse.Content.ReadAsStringAsync();
-            //    List<Post> posts = 
-            //        JsonConvert.DeserializeObject<List<Post>>(content);
-
-            //    foreach (var item in posts)
-            //    {
-            //        Console.WriteLine("IdSucursal: " + item.idSucursal + "Nombre: " + item.NOMBRE + "Tipo sucursal: " + item.TIPOSUCURSAL);
-            //    }
-            //}
-
-
-            // Fin de ejemplo de HTTP GET
-
-            //// Ejemplo de HTTP POST
-            //string url = "https://canal1.xsa.com.mx:9050/bf2e1036-ba47-49a0-8cd9-e04b36d5afd4/cfdis/cancelar?";
-            //HttpClient client = new HttpClient();
-            ////client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            //client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-            //Post cerveza = new Post();
-            //string miJson = JsonConvert.SerializeObject(cerveza);
-            ////Escribir el json en un archivo externo
-            //File.WriteAllText("objecto.txt", miJson);
-
-
-            ////string data = "{ motivo:'02', uuid:['7A1A518F - 1C2D - 4110 - 8BD4 - 4440B9266BD7']}";
-            ////data.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            //string uid = "7A1A518F-1C2D-4110-8BD4-4440B9266BD7";
-            ////string jsonp = "{\"motivo\":\"02\",\"uuid\":[\""+uid+"\"]}";
-            ////Console.WriteLine(jsonp);
-            //string url = "https://canal1.xsa.com.mx:9050/bf2e1036-ba47-49a0-8cd9-e04b36d5afd4/cfdis/cancelar?";
-            //HttpClient client = new HttpClient();
-            //client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            //string json = "{\"motivo\":\"02\",\"uuid\":[\"" + uid + "\"]}";
-            //HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            //var httpResponse = await client.PostAsync(url, content);
-            ////var resulta = await httpResponse.Content.ReadAsStringAsync();
-            ////List<Post> postResult = JsonConvert.DeserializeObject<List<Post>>(resulta);
-
-            //if (httpResponse.IsSuccessStatusCode)
-            //{
-            //    var result = await httpResponse.Content.ReadAsStringAsync();
-            //    List<PostResponse> postResult2 = JsonConvert.DeserializeObject<List<PostResponse>>(result);
-
-            //    foreach (var item in postResult2)
-            //    {
-            //        Console.WriteLine("uuid: " + item.uuid +" - "+"Status: " + item.status +" - " + "Descripcion: " + item.descripcion);
-            //    }
-            //}
-            // Fin de ejemplo de HTTP POST
-
-
-
-
-
-
-            //Cerveza cerveza = new Cerveza(10, "Cerveza");
-
-            //Con esto convierto un objeto en formato JSON
-            //string miJson = JsonConvert.SerializeObject(cerveza);
-            //Escribir el json en un archivo externo
-            //File.WriteAllText("objecto.txt", miJson);
-
-            //Ejemplo de extraer los datos de un archivo JSON
-            //string miJson = File.ReadAllText("objecto.txt");
-            //Cerveza cerveza1 = JsonConvert.DeserializeObject<Cerveza>(miJson);
-
-
-
-            //var bebidaAlcoholica = new Vino(100);
-            //MostrarRecomendacion(bebidaAlcoholica);
-
-            // Creando listas 
-
-            //List<int> lista = new List<int>() { 1,2,3,4,5,6,7,8};
-
-            ////Par ingresar elementos a la lista
-            //lista.Add(9);
-            //lista.Add(0);
-            //// Quitar elementos a la lista
-            ////lista.Remove(1);
-
-            //foreach (var item in lista)
-            //{
-            //    Console.WriteLine(item);
-            //}
-
-            //List<Cerveza> cervezas = new List<Cerveza>() { new Cerveza(10,"Cerveza premium")};
-            //cervezas.Add(new Cerveza(500));
-            //Cerveza modelo = new Cerveza(500, "Cerveza de trigo");
-            //cervezas.Add(modelo);
-
-            //foreach (var item in cervezas)
-            //{
-            //    Console.WriteLine("Cerveza: " + item.Nombre);
-            //}
-
-
-
-
-
-
-            //string[] file = Directory.GetFiles(@"C:\Archivos", "*.txt");
-            //foreach (var item in file)
-            //{
-            //    Console.WriteLine(item);
-            //}
-
-
-
-
-
-
-            //Console.WriteLine(ultimo_archivo);
-
-
-            //int cantidad = files.Length;
-            //if (cantidad > 0 && cantidad < 2)
-            //{
-
-            //    var last = files.Last();
-            //    string sourceFile = @"C:\Archivos\" + last;
-            //    string destinationFile = @"C:\Archivos\Uploads\" + last;
-
-            //    System.IO.File.Move(sourceFile, destinationFile);
-            //    DirectoryInfo dis = new DirectoryInfo(@"C:\Archivos\Uploads");
-            //    FileInfo[] filess = dis.GetFiles("*.txt");
-            //    var lasts = filess.Last();
-            //    Console.WriteLine("Copia existosa: " + lasts);
-            //}
-            //else
-            //{
-            //    Console.WriteLine("No hay archivos nuevos");
-            //}
-
-            //Console.WriteLine(cantidad);
-            //System.IO.File.Move(files,);
-            //foreach (FileInfo file in files)
-            //{
-            //    string archivo = file.Name + DateTime.Today; 
-            //    Console.WriteLine(archivo);
-
-            //    //if (file.Equals(last))
-            //    //{
-
-            //    //}
-            //}
-
-
-
-
-
-            //Bebidas bebida = new Bebidas("Coca cola", 1000);
-            //bebida.Beberse(500);
-            //Cerveza cerveza = new Cerveza();
-            //cerveza.Beberse(10);
-            //Console.WriteLine(cerveza.Cantidad);
-            // Con esto creamos un arreglo de 10 valores
-            //int[] numeros = new int[10] {1,2,3,4,5,6,7,8,9,0};
-
-            // Con esto obtenemos el valor solicitado
-            //int numero = numeros[1];
-            //Console.WriteLine(numero);
-
-            // Con esto recorro el arreglo y lo imprimo
-
-            //for (int i = 0; i < numeros.Length; i++)
-            //{
-            //    Console.WriteLine(numeros[i]);
-            //}
-
-            //foreach (var item in numeros)
-            //{
-            //    Console.WriteLine(item);
-            //}
-
-            //// Con esto creamos una lista
-            //List<int> lista = new List<int>();
-
-            ////Con esto agregamos elementos a la lista
-            //lista.Add(1);
-            //lista.Add(2);
 
             //-----------------------------------------------------------------------------
 
-            // Funcion para cargar archivos
-            //muobject.extraer();
+            //Funcion para cargar archivos
+           
 
             //------------------------------------------------
 
         }
 
-        //static void MostrarRecomendacion(IBebidaAlcoholica bebida)
-        //{
-        //    bebida.MaxRecomendado();
-        //}
+        public static List<string> valida(string leg)
+        {
+            string compCarta = "";
+            results.Clear();
+            if (leg.Length > 0 && leg != "null" && leg != "")
+            {
+                try
+                {
+                    List<string> validaCFDI = new List<string>();
+                    validaCFDI = sql.recuperaRegistros("exec sp_validaCFDICartaporte " + leg);
+                    if (validaCFDI.Count > 0)
+                    {
+                        if (validaCFDI[1].Contains("OK"))
+                        {
+                            compCarta = sql.recuperaValor("exec sp_compCartaPorte " + leg);
+                            if (compCarta.Length > 0)
+                            {
+                                tiposCfds();
+                                words = Regex.Replace(compCarta, @"\r\n?|\n", "").Split('|');
+                                iniciaDatos();
+                                if (Cartaporte(leg, compCarta))
+                                {
+                                    results.Add("ok");//mostrar  }
+                                }
+                                else
+                                {
+                                    results.Clear();
+                                    results.Add("Error1");
+                                    results.Add("Ver el historial de errores para mas información, copiar el error y reportar a TI.");
+                                }
+                            }
+                            else
+                            {
+                                results.Clear();
+                                results.Add("Error1");
+                                results.Add("Error al generar carta porte.");//mostrar 
+                            }
+                        }
+                        else
+                        {
+                            results.Clear();
+                            results.Add("Error");
+                            results.Add("Error en la obtención de datos: \r\n" + validaCFDI[0]);//mostrar 
+                        }
+                    }
+                    else
+                    {
+                        results.Clear();
+                        results.Add("Error");
+                        results.Add("Error al validar el segmento.");//mostrar 
+                    }
+                }
+                catch (Exception)
+                {
+                    results.Clear();
+                    results.Add("Error");
+                    results.Add("Segmento invalido");
+                }
+            }
+            else { results.Add("Error3"); }
+            return results;
+        }
+        public static void tiposCfds()
+        {
+            var request_ = (HttpWebRequest)WebRequest.Create("https://canal1.xsa.com.mx:9050/" + "bf2e1036-ba47-49a0-8cd9-e04b36d5afd4" + "/tiposCfds");
+            var response_ = (HttpWebResponse)request_.GetResponse();
+            var responseString_ = new StreamReader(response_.GetResponseStream()).ReadToEnd();
 
-        //public void extraer()
-        //{
+            string[] separadas_ = responseString_.Split('}');
 
-        //    DirectoryInfo di = new DirectoryInfo(@"C:\Archivos");
-        //    FileInfo[] files = di.GetFiles("*.txt");
+            foreach (string dato in separadas_)
+            {
+                if (dato.Contains("TDRXP"))
+                {
+                    string[] separadasSucursal_ = dato.Split(',');
+                    foreach (string datoSuc in separadasSucursal_)
+                    {
+                        if (datoSuc.Contains("idSucursal"))
+                        {
+                            idSucursal = datoSuc.Replace(dato.Substring(0, 8), "").Replace("\"", "").Split(':')[1];
+                        }
 
-        //    int cantidad = files.Length;
-        //    if (cantidad > 0)
-        //    {
-        //        var ultimo_archivo = (from f in di.GetFiles()
-        //                              orderby f.LastWriteTime descending
-        //                              select f).First();
+                        if (datoSuc.Contains("id") && !datoSuc.Contains("idSucursal"))
+                        {
+                            idTipoFactura = datoSuc.Replace(dato.Substring(0, 8), "").Replace("\"", "").Split(':')[1];
+                        }
+                    }
+                }
+            }
+        }
+      
+        public static bool Cartaporte(string leg, string strtext)
+        {
+            jsonFactura = "{\r\n\r\n  \"idTipoCfd\":" + "\"" + idTipoFactura + "\"";
+            jsonFactura += ",\r\n\r\n  \"nombre\":" + "\"" + leg + ".txt" + "\"";
+            jsonFactura += ",\r\n\r\n  \"idSucursal\":" + "\"" + idSucursal + "\"";
+            //jsonFactura += ", \r\n\r\n  \"archivoFuente\":" + "\"" + Regex.Replace(strtext, @"\r\n?|\n", "") + "\"" + "\r\n\r\n}";
+            jsonFactura += ", \r\n\r\n  \"archivoFuente\":" + "\"" + strtext + "\"" + "\r\n\r\n}";
+
+            string folioFactura = "", serieFactura = "", uuidFactura = "", pdf_xml_descargaFactura = "", pdf_descargaFactura = "", xlm_descargaFactura = "", cancelFactura = "", error = "";
+            string salida = "";
+
+            try
+            {
+                //IdApiEmpresa = "bf2e1036-ba47-49a0-8cd9-e04b36d5afd4";
+                var client = new RestClient("https://canal1.xsa.com.mx:9050/" + "bf2e1036-ba47-49a0-8cd9-e04b36d5afd4" + "/cfdis");
+                var request = new RestRequest(Method.PUT);
+
+                request.AddHeader("cache-control", "no-cache");
+
+                request.AddHeader("content-length", "834");
+                request.AddHeader("accept-encoding", "gzip, deflate");
+                request.AddHeader("Host", "canal1.xsa.com.mx:9050");
+                request.AddHeader("Postman-Token", "b6b7d8eb-29f2-420f-8d70-7775701ec765,a4b60b83-429b-4188-98d4-7983acc6742e");
+                request.AddHeader("Cache-Control", "no-cache");
+                request.AddHeader("Accept", "*/*");
+                request.AddHeader("User-Agent", "PostmanRuntime/7.13.0");
+
+                request.AddParameter("application/json", jsonFactura, ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+
+                string respuesta = response.Content.ToString();
+
+                if (respuesta.Contains("Bad request"))
+                {
+                    return false;
+                }
+                string[] separadaFactura = response.Content.ToString().Split(',');
+
+                List<string> erroes = new List<string>();
+
+                for (int i = 0; i < 7; i++)
+                {
+                    try
+                    {
+
+                        error = separadaFactura[i].Replace("\\n", "").Replace("]}", "").Replace(@"\", "").Replace("\\t", "").Replace("{", "").Replace("}", "").Replace("[", "").Replace("]", "");
+                        erroes.Add(error);
+                    }
+                    catch (Exception)
+                    {
+                        erroes.Add("N/A");
+                    }
+                }
 
 
 
-        //        string datestring = DateTime.Now.ToString("yyyyMMddHHmmss");
-        //        string aname = datestring + "-" + ultimo_archivo.Name;
-        //        string farchivo = ultimo_archivo + datestring;
-        //        //Console.WriteLine("Copia existosa: " + farchivo);
+                foreach (string factura in separadaFactura)
+                {
+                    if (factura.Contains("errors") || factura.Contains("error"))
+                    {
+
+                        salida = "FALLA AL SUBIR";
+
+                        DateTime fecha1 = DateTime.Now;
+                        string fechaFinal = fecha1.Year + "-" + fecha1.Month + "-" + fecha1.Day + " " + fecha1.Hour + ":" + fecha1.Minute + ":" + fecha1.Second + "." + fecha1.Millisecond;
+
+                        facLabControler.ErroresgeneradasCP(fechaFinal, leg, erroes[0], erroes[1], erroes[2], erroes[3], erroes[4], erroes[5], erroes[6]);
+                        return false;
+                    }
+                    else
+                    {
+                        if (factura.Contains("folio"))
+                        {
+                            folioFactura = factura.Replace(factura.Substring(0, 5), "").Replace("\"", "").Split(':')[1];
+                        }
+
+                        if (factura.Contains("serie"))
+                        {
+                            serieFactura = factura.Replace(factura.Substring(0, 5), "").Replace("\"", "").Split(':')[1];
+                        }
+
+                        if (factura.Contains("uuid"))
+                        {
+                            uuidFactura = factura.Replace(factura.Substring(0, 4), "").Replace("\"", "").Split(':')[1];
+                        }
+
+                        if (factura.Contains("pdfAndXmlDownload"))
+                        {
+                            pdf_xml_descargaFactura = factura.Replace(factura.Substring(0, 17), "").Replace("\"", "").Split(':')[1];
+                        }
+
+                        if (factura.Contains("pdfDownload"))
+                        {
+                            pdf_descargaFactura = "https://canal1.xsa.com.mx:9050" + factura.Replace(factura.Substring(0, 11), "").Replace("\"", "").Split(':')[1];
+                        }
+
+                        if (factura.Contains("xmlDownload") && !factura.Contains("pdfAndXmlDownload"))
+                        {
+                            xlm_descargaFactura = "https://canal1.xsa.com.mx:9050" + factura.Replace(factura.Substring(0, 11), "").Replace("\"", "").Split(':')[1];
+                        }
+
+                        if (factura.Contains("cancellCfdi"))
+                        {
+                            cancelFactura = factura.Replace(factura.Substring(0, 11), "").Replace("\"", "").Split(':')[1];
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string error1 = ex.Message;
+            }
+
+            string ftp = System.Web.Configuration.WebConfigurationManager.AppSettings["ftp"];
+            if (ftp.Equals("Si"))
+            {
+                string path = System.Web.Configuration.WebConfigurationManager.AppSettings["dir"] + leg + ".txt";
+                UploadFile file = new UploadFile();
+            }
+            if (salida != "FALLA AL SUBIR")
+            {
+                if (System.Web.Configuration.WebConfigurationManager.AppSettings["activa"].Equals("Si"))
+                {
+                    //Modifica referencia
+                    string imaging = "http://172.16.136.34/cgi-bin/img-docfind.pl?reftype=ORD&refnum=" + leg.Trim();
+
+                    DateTime fecha1 = Convert.ToDateTime(Fecha);
+                    string fechaFinal = fecha1.Year + "-" + fecha1.Month + "-" + fecha1.Day + " " + fecha1.Hour + ":" + fecha1.Minute + ":" + fecha1.Second + "." + fecha1.Millisecond;
+
+                    facLabControler.generadas(folioFactura, serieFactura, uuidFactura, pdf_xml_descargaFactura, pdf_descargaFactura, xlm_descargaFactura, cancelFactura, leg, fechaFinal, Total, Moneda, RFC, Origen, Destino);
+                    result.Add(folioFactura);
+                    result.Add(serieFactura);
+                    result.Add(uuidFactura);
+                    result.Add(pdf_xml_descargaFactura);
+                    result.Add(pdf_descargaFactura);
+                    result.Add(xlm_descargaFactura);
+                    result.Add(cancelFactura);
+                    result.Add(leg);
+                    result.Add(fechaFinal);
+                    return true;
+                }
+                return true;
+            }
+            else
+            {
+                return false;//"Error al conectar al servicio XSA";
+            }
+        }
+        public static void iniciaDatos()
+        {
+            Fecha = words[4].ToString();
+            Subtotal = words[5].ToString();
+            Totalimptrasl = words[6].ToString();
+            Totalimpreten = words[7].ToString();
+            Descuentos = words[8].ToString();
+            Total = words[9].ToString();
+            FormaPago = words[11].ToString();
+            Condipago = words[12].ToString();
+            MetodoPago = words[13].ToString();
+            Moneda = words[14].ToString();
+            RFC = words[22].ToString();
+            CodSAT = words[39].ToString();
+            IdProducto = words[43].ToString();
+            Producto = "Viaje";
+            Origen = "";// words[321].ToString();
+            Destino = "";// words[322].ToString();
+
+            result.Add(Fecha);
+            result.Add(Subtotal);
+            result.Add(Totalimptrasl);
+            result.Add(Totalimpreten);
+            result.Add(Descuentos);
+            result.Add(Total);
+            result.Add(FormaPago);
+            result.Add(Condipago);
+            result.Add(MetodoPago);
+            result.Add(Moneda);
+            result.Add(RFC);
+            result.Add(CodSAT);
+            result.Add(IdProducto);
+            result.Add(Producto);
+            result.Add(Origen);
+            result.Add(Destino);
+        }
+        public static Hashtable generaActualizacion()
+        {
+            Hashtable datosTabla = conceptosFinales();
+            Hashtable actualiza = new Hashtable();
+
+            foreach (int item in datosTabla.Keys)
+            {
+                ArrayList list = (ArrayList)datosTabla[item];
+                string tipoConcepto = list[3].ToString();
+                double total = double.Parse(list[5].ToString());
+                if (actualiza.ContainsKey(tipoConcepto))
+                {
+                    double val = double.Parse(actualiza[tipoConcepto].ToString());
+                    actualiza[tipoConcepto] = val + total;
+                }
+                else
+                {
+                    actualiza.Add(tipoConcepto, total);
+                }
+            }
+            return actualiza;
+        }
 
 
-        //        string sourceFile = @"C:\Archivos\" + ultimo_archivo;
-        //        string destinationFile = @"C:\Archivos\Uploads\" + datestring + "-" + ultimo_archivo;
-        //        System.IO.File.Move(sourceFile, destinationFile);
-        //        DirectoryInfo dis = new DirectoryInfo(@"C:\Archivos\Uploads");
-        //        FileInfo[] filess = dis.GetFiles("*.txt");
-        //        var lasts = filess.Last();
-        //        cargarEnSQL(aname);
-        //        Console.WriteLine("Copia existosa: " + lasts);
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("No hay más archivos");
-        //    }
+        [WebMethod]
+        public static object gettable()
+        {
+            List<CartaPorterest> lista = new List<CartaPorterest>();
+
+            DataTable data = new DataTable();
+            data = sql.ObtieneTabla("SELECT TOP 25 Folio, Serie, UUID, Pdf_xml_descarga, Pdf_descargaFactura, replace(xlm_descargaFactura,'}','') as xml_descargaFactura, replace(cancelFactura,'}','') as cancelFactura, LegNum, Fecha, Total, Moneda, RFC,Origen, Destino FROM VISTA_Carta_Porte ORDER BY FECHA DESC");
+            if (data.Rows.Count > 0)
+            {
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    lista.Add(new CartaPorterest(data.Rows[i][0].ToString(), data.Rows[i][1].ToString(), data.Rows[i][2].ToString(), "<a href=" + '\u0022' + "https://canal1.xsa.com.mx:9050" + data.Rows[i][3].ToString() + '\u0022' + ">" + "<input type=" + '\u0022' + "submit" + '\u0022' + "value=" + '\u0022' + "ZIP" + '\u0022' + "/>" + "</a>", "<a href=" + '\u0022' + data.Rows[i][4].ToString() + '\u0022' + ">" + "<input type=" + '\u0022' + "submit" + '\u0022' + "value=" + '\u0022' + "PDF" + '\u0022' + "/>" + "</a>", "<a href=" + '\u0022' + data.Rows[i][5].ToString() + '\u0022' + ">" + "<input type=" + '\u0022' + "submit" + '\u0022' + "value=" + '\u0022' + "XML" + '\u0022' + "/>" + "</a>", "<button type=" + '\u0022' + "button" + '\u0022' + " OnClick=" + '\u0022' + "cancelCP('" + data.Rows[i][2].ToString() + "'" + ", '" + data.Rows[i][0].ToString() + "' )" + '\u0022' + ">" + "Cancelar" + "</button>", data.Rows[i][7].ToString(), data.Rows[i][8].ToString(), data.Rows[i][9].ToString(), data.Rows[i][10].ToString(), data.Rows[i][11].ToString(), data.Rows[i][12].ToString(), data.Rows[i][13].ToString()));
+                }
+            }
+            object json = new { data = lista };
+            return json;
+        }
+
+        public static Hashtable conceptosFinales()
+        {
+            table = new HtmlTable();
+            Hashtable datos = new Hashtable();
+            for (int i = 0; i < table.Rows.Count - 1; i++)
+            {
+                TextBox cant = (TextBox)table.FindControl("" + i + "1");
+                TextBox unidad = (TextBox)table.FindControl("" + i + "1");
+                TextBox concepto = (TextBox)table.FindControl("" + i + "2");
+                DropDownList tmp = (DropDownList)table.FindControl("" + i + "3");
+                TextBox valor = (TextBox)table.FindControl("" + i + "4");
+                TextBox importe = (TextBox)table.FindControl("" + i + "5");
+
+                double cantidad = Math.Abs(double.Parse(cant.Text));
+
+                //double cantidad = Double.Parse(cant.Text);
+
+                ArrayList list = new ArrayList();
+                list.Add(cantidad.ToString());
+                list.Add(unidad.Text);
+                list.Add(concepto.Text);
+                list.Add(tmp.SelectedValue);
+                list.Add(valor.Text);
+                list.Add(importe.Text);
+
+                if (datos.ContainsKey(tmp.Text))
+                {
+                    datos[i] = list;
+                }
+                else
+                {
+                    datos.Add(i, list);
+                }
+            }
+            return datos;
+        }
+
+        public void extraer()
+        {
+
+            //string ftp = @"C:\Users\Administrator\Documents\SAYER";
+            //DirectoryInfo di = new DirectoryInfo(@"C:\Archivos");
+            DirectoryInfo di = new DirectoryInfo(@"C:\Users\Administrator\Documents\SAYER");
+            FileInfo[] files = di.GetFiles("*.xml");
+
+            int cantidad = files.Length;
+            if (cantidad > 0)
+            {
+                var ultimo_archivo = (from f in di.GetFiles()
+                                      orderby f.LastWriteTime descending
+                                      select f).First();
 
 
-        //}
-        //public int cargarEnSQL(string narchivo)
-        //{
-        //    string usuario = "jcherrera@bgcapitalgroup.mx";
-        //    int resultado = 0;
-        //    try
-        //    {
-        //        //NOS CONECTAMOS CON LA BASE DE DATOS
-        //        string cadena = @"Data source=DESKTOP-CV57FOU\SQLEXPRESS; Initial Catalog=DBCARGA; User ID=jdev; Password=tdr123;Trusted_Connection=false;MultipleActiveResultSets=true";
-        //        using (SqlConnection cn = new SqlConnection(cadena))
-        //        {
-        //            SqlCommand cmd = new SqlCommand("usp_xml", cn);
-        //            //cmd.Parameters.AddWithValue("@nombre", nombre);
-        //            cmd.Parameters.AddWithValue("@usuario", usuario);
-        //            cmd.Parameters.AddWithValue("@narchivo", narchivo);
 
-        //            cmd.Parameters.Add("Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
+                string datestring = DateTime.Now.ToString("yyyyMMddHHmmss");
+                string aname = datestring + "-" + ultimo_archivo.Name;
+                string farchivo = ultimo_archivo + datestring;
+                //Console.WriteLine("Copia existosa: " + farchivo);
 
-        //            cmd.CommandType = CommandType.StoredProcedure;
 
-        //            cn.Open();
-        //            cmd.ExecuteNonQuery();
-        //            resultado = Convert.ToInt32(cmd.Parameters["Resultado"].Value);
+                string sourceFile = @"C:\Users\Administrator\Documents\SAYER\" + ultimo_archivo;
+            
+                    //string destinationFile = @"C:\Archivos\Uploads\" + datestring + "-" + ultimo_archivo;
+                string destinationFile = @"C:\inetpub\wwwroot\SWUpload\Uploads\" + datestring + "-" + ultimo_archivo;
+                System.IO.File.Move(sourceFile, destinationFile);
+                DirectoryInfo dis = new DirectoryInfo(@"C:\inetpub\wwwroot\SWUpload\Uploads");
+                FileInfo[] filess = dis.GetFiles("*.xml");
+                var lasts = filess.Last();
+                cargarEnSQL(aname);
+                Console.WriteLine("Copia existosa: " + lasts);
+            }
+            else
+            {
+                Console.WriteLine("No hay más archivos");
+            }
 
-        //        }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
+        }
+        public int cargarEnSQL(string narchivo)
+        {
+            string usuario = "SAYER";
+            int resultado = 0;
+            try
+            {
+                //NOS CONECTAMOS CON LA BASE DE DATOS
+                string cadena = @"Data source=172.24.16.112; Initial Catalog=TMWSuite; User ID=sa; Password=tdr9312;Trusted_Connection=false;MultipleActiveResultSets=true";
+                using (SqlConnection cn = new SqlConnection(cadena))
+                {
+                    SqlCommand cmd = new SqlCommand("usp_xml", cn);
+                    //cmd.Parameters.AddWithValue("@nombre", nombre);
+                    cmd.Parameters.AddWithValue("@usuario", usuario);
+                    cmd.Parameters.AddWithValue("@narchivo", narchivo);
 
-        //        string mensaje = ex.Message.ToString();
-        //        resultado = 0;
-        //    }
+                    cmd.Parameters.Add("Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
 
-        //    return resultado;
-        //}
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cn.Open();
+                    cmd.ExecuteNonQuery();
+                    resultado = Convert.ToInt32(cmd.Parameters["Resultado"].Value);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                string mensaje = ex.Message.ToString();
+                resultado = 0;
+            }
+
+            return resultado;
+        }
+
+
 
 
     }
