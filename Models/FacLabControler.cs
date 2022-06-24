@@ -21,6 +21,10 @@ namespace ConsoleApp2.Models
         {
             return this.modelFact.getLeg();
         }
+        public DataTable UpdateLeg(string leg)
+        {
+            return this.modelFact.UpdateLeg(leg);
+        }
 
         public DataTable facturasClientes()
         {

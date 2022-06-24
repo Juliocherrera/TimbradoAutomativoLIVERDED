@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ConsoleApp2.exe" size="57832">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ConsoleApp2.exe" size="61416">
       <assemblyIdentity name="ConsoleApp2" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>OfsG3E72O8bGHCY7mmhD/XGgZELwZ/nhMf0+EO6TAZM=</dsig:DigestValue>
+        <dsig:DigestValue>iHYFlpBlRKEKvdyNGZxNqn33sQLgq2CvoyxFuKw5fxM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -233,13 +233,13 @@
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="ConsoleApp2.exe.config" size="2039">
+  <file name="ConsoleApp2.exe.config" size="2103">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>IX7pEVWqcTKHT5Pu4LofSwye8JhA2vmMP7pnyxcJcWM=</dsig:DigestValue>
+      <dsig:DigestValue>dDG5vAjfvVMH6iDjmzoigjh9YrG5g/Z3cTASm+3a10M=</dsig:DigestValue>
     </hash>
   </file>
 </asmv1:assembly>

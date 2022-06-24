@@ -58,18 +58,24 @@ namespace ConsoleApp2
             
             
             Program muobject = new Program();
-            DataTable td = facLabControler.GetLeg();
-            foreach (DataRow item in td.Rows)
-            {
-                string leg = item["Leg"].ToString();
-                valida(leg);
-            }
+            //DataTable td = facLabControler.GetLeg();
+            //foreach (DataRow item in td.Rows)
+            //{
+            //    string leg = item["segmento"].ToString();
+            //    valida(leg);
+            //}
+
+            string leg = "1291239";
+            valida(leg);
+
+
+
 
 
             //-----------------------------------------------------------------------------
 
             //Funcion para cargar archivos
-           
+
 
             //------------------------------------------------
 
@@ -98,6 +104,15 @@ namespace ConsoleApp2
                                 if (Cartaporte(leg, compCarta))
                                 {
                                     results.Add("ok");//mostrar  }
+                                    //DataTable updateLeg = facLabControler.UpdateLeg(leg);
+                                    //foreach (DataRow item in updateLeg.Rows)
+                                    //{
+                                    //    string rupdate = item["segmento"].ToString();
+                                    //    string lupdate = item["estatus"].ToString();
+                                    //}
+
+                                    //Aqui actualizamos en estatus 
+
                                 }
                                 else
                                 {
@@ -137,6 +152,73 @@ namespace ConsoleApp2
             else { results.Add("Error3"); }
             return results;
         }
+        //Esto es lo nuevo
+
+        //[WebMethod]
+        //public static List<string> valida2(string leg)
+        //{
+        //    string compCarta = "";
+        //    result.Clear();
+
+
+
+
+        //    try
+        //    {
+        //        List<string> validaCFDI = new List<string>();
+        //        validaCFDI = sql.recuperaRegistros("exec sp_validaCFDICartaporte " + leg);
+        //        if (validaCFDI.Count > 0)
+        //        {
+        //            if (validaCFDI[1].Contains("OK"))
+        //            {
+        //                compCarta = sql.recuperaValor("exec sp_compCartaPorte " + leg);
+        //                if (compCarta.Length > 0)
+        //                {
+        //                    tiposCfds();
+        //                    words = Regex.Replace(compCarta, @"\r\n?|\n", "").Split('|');
+        //                    iniciaDatos();
+        //                    if (Cartaporte(leg, compCarta))
+        //                    {
+        //                        result.Add("ok");//mostrar  }
+        //                    }
+        //                    else
+        //                    {
+        //                        result.Clear();
+        //                        result.Add("Error1");
+        //                        result.Add("Ver el historial de errores para mas información, copiar el error y reportar a TI.");
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    result.Clear();
+        //                    result.Add("Error1");
+        //                    result.Add("Error al generar carta porte.");//mostrar 
+        //                }
+        //            }
+        //            else
+        //            {
+        //                result.Clear();
+        //                result.Add("Error");
+        //                result.Add("Error en la obtención de datos: \r\n" + validaCFDI[0]);//mostrar 
+        //            }
+        //        }
+        //        else
+        //        {
+        //            result.Clear();
+        //            result.Add("Error");
+        //            result.Add("Error al validar el segmento.");//mostrar 
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        result.Clear();
+        //        result.Add("Error");
+        //        result.Add("Factura invalida");
+        //    }
+
+        //    return result;
+        //}
+
         public static void tiposCfds()
         {
             var request_ = (HttpWebRequest)WebRequest.Create("https://canal1.xsa.com.mx:9050/" + "bf2e1036-ba47-49a0-8cd9-e04b36d5afd4" + "/tiposCfds");

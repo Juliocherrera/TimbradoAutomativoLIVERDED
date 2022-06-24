@@ -128,6 +128,8 @@
     <Compile Include="Models\BebidaAlcoholica.cs" />
     <Compile Include="Models\Bebidas.cs" />
     <Compile Include="Models\Cerveza.cs" />
+    <Compile Include="Models\Functions.cs" />
+    <Compile Include="Models\Encryptor.cs" />
     <Compile Include="Models\PostResponse.cs" />
     <Compile Include="Models\Post.cs" />
     <Compile Include="Models\FacLabControler.cs" />
