@@ -58,15 +58,58 @@ namespace ConsoleApp2
             
             
             Program muobject = new Program();
-            //DataTable td = facLabControler.GetLeg();
-            //foreach (DataRow item in td.Rows)
-            //{
-            //    string leg = item["segmento"].ToString();
-            //    valida(leg);
-            //}
 
-            string leg = "1291239";
-            valida(leg);
+            //string leg = "1238056";
+            //DataTable re = facLabControler.GetSegmentoRepetido(leg);
+            //if (re.Rows.Count > 0)
+            //{
+            //    //string leg2 = item2["Folio"].ToString();
+            //    Console.WriteLine("El Folio ya esta timbrado" + leg);
+            //}
+           
+
+            DataTable td = facLabControler.GetLeg();
+            if (td.Rows.Count > 0)
+            {
+                
+                foreach (DataRow item2 in td.Rows)
+                {
+
+                    string folio = item2["segmento"].ToString();
+                    //Validar que no exista
+                    DataTable re = facLabControler.GetSegmentoRepetido(folio);
+                    if (re.Rows.Count > 0)
+                    {
+                        string foliorepetido = item2["segmento"].ToString();
+                        Console.WriteLine("El Folio ya esta timbrado" + foliorepetido);
+
+                        string tipom = "9";
+                        DataTable updateLeg = facLabControler.UpdateLeg(foliorepetido, tipom);
+                        foreach (DataRow item3 in updateLeg.Rows)
+                        {
+                            string rupdate = item3["segmento"].ToString();
+                            string lupdate = item3["estatus"].ToString();
+                        }
+                    }
+                    else  //SI NO EXISTE CONTINUO
+                    {
+                        foreach (DataRow item in td.Rows)
+                        {
+                            string leg = item["segmento"].ToString();
+
+                            valida(leg);
+                        }
+                    }
+                }
+
+                // -------------------
+
+
+            }
+            
+
+            //string leg = "1291239";
+            //valida(leg);
 
 
 
@@ -104,12 +147,13 @@ namespace ConsoleApp2
                                 if (Cartaporte(leg, compCarta))
                                 {
                                     results.Add("ok");//mostrar  }
-                                    //DataTable updateLeg = facLabControler.UpdateLeg(leg);
-                                    //foreach (DataRow item in updateLeg.Rows)
-                                    //{
-                                    //    string rupdate = item["segmento"].ToString();
-                                    //    string lupdate = item["estatus"].ToString();
-                                    //}
+                                    string tipom = "2";
+                                    DataTable updateLeg = facLabControler.UpdateLeg(leg,tipom);
+                                    foreach (DataRow item in updateLeg.Rows)
+                                    {
+                                        string rupdate = item["segmento"].ToString();
+                                        string lupdate = item["estatus"].ToString();
+                                    }
 
                                     //Aqui actualizamos en estatus 
 
@@ -119,6 +163,8 @@ namespace ConsoleApp2
                                     results.Clear();
                                     results.Add("Error1");
                                     results.Add("Ver el historial de errores para mas información, copiar el error y reportar a TI.");
+                                    string tipom = "3";
+                                    DataTable updateLeg = facLabControler.UpdateLeg(leg, tipom);
                                 }
                             }
                             else
@@ -126,13 +172,18 @@ namespace ConsoleApp2
                                 results.Clear();
                                 results.Add("Error1");
                                 results.Add("Error al generar carta porte.");//mostrar 
+                                string tipom = "3";
+                                DataTable updateLeg = facLabControler.UpdateLeg(leg, tipom);
                             }
                         }
                         else
                         {
+                            // ERROR: YA EXISTE O YA ESTA TIMBRADO
                             results.Clear();
                             results.Add("Error");
                             results.Add("Error en la obtención de datos: \r\n" + validaCFDI[0]);//mostrar 
+                            string tipom = "9";
+                            DataTable updateLeg = facLabControler.UpdateLeg(leg, tipom);
                         }
                     }
                     else
@@ -140,6 +191,8 @@ namespace ConsoleApp2
                         results.Clear();
                         results.Add("Error");
                         results.Add("Error al validar el segmento.");//mostrar 
+                        string tipom = "3";
+                        DataTable updateLeg = facLabControler.UpdateLeg(leg, tipom);
                     }
                 }
                 catch (Exception)
@@ -147,6 +200,8 @@ namespace ConsoleApp2
                     results.Clear();
                     results.Add("Error");
                     results.Add("Segmento invalido");
+                    string tipom = "3";
+                    DataTable updateLeg = facLabControler.UpdateLeg(leg, tipom);
                 }
             }
             else { results.Add("Error3"); }

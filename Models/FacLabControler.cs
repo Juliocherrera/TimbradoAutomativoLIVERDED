@@ -21,9 +21,13 @@ namespace ConsoleApp2.Models
         {
             return this.modelFact.getLeg();
         }
-        public DataTable UpdateLeg(string leg)
+        public DataTable GetSegmentoRepetido(string leg)
         {
-            return this.modelFact.UpdateLeg(leg);
+            return this.modelFact.GetSegmentoRepetido(leg);
+        }
+        public DataTable UpdateLeg(string leg, string tipom)
+        {
+            return this.modelFact.UpdateLeg(leg,tipom);
         }
 
         public DataTable facturasClientes()

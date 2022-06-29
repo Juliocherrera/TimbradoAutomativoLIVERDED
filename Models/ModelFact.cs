@@ -104,7 +104,7 @@ namespace ConsoleApp2.Models
             }
             return dataTable;
         }
-        public DataTable UpdateLeg(string leg)
+        public DataTable UpdateLeg(string leg, string tipom)
         {
             DataTable dataTable = new DataTable();
             using (SqlConnection connection = new SqlConnection(this._ConnectionString))
@@ -113,6 +113,37 @@ namespace ConsoleApp2.Models
                 using (SqlCommand selectCommand = new SqlCommand("sp_obtener_segmento_actualizado", connection))
                 {
                     
+                    selectCommand.CommandType = CommandType.StoredProcedure;
+                    selectCommand.CommandTimeout = 1000;
+                    selectCommand.Parameters.AddWithValue("@leg", (object)leg);
+                    selectCommand.Parameters.AddWithValue("@tipom", (object)tipom);
+                    selectCommand.ExecuteNonQuery();
+                    using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(selectCommand))
+                    {
+                        try
+                        {
+                            //selectCommand.Connection.Open();
+                            sqlDataAdapter.Fill(dataTable);
+                        }
+                        catch (SqlException ex)
+                        {
+                            connection.Close();
+                            string message = ex.Message;
+                        }
+                    }
+                }
+            }
+            return dataTable;
+        }
+        public DataTable GetSegmentoRepetido(string leg)
+        {
+            DataTable dataTable = new DataTable();
+            using (SqlConnection connection = new SqlConnection(this._ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand selectCommand = new SqlCommand("sp_obtener_segmento_repetido", connection))
+                {
+
                     selectCommand.CommandType = CommandType.StoredProcedure;
                     selectCommand.CommandTimeout = 1000;
                     selectCommand.Parameters.AddWithValue("@leg", (object)leg);
@@ -134,7 +165,6 @@ namespace ConsoleApp2.Models
             }
             return dataTable;
         }
-
         public DataTable getFacturasClientes()
         {
             DataTable dataTable = new DataTable();
